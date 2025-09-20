@@ -1,0 +1,64 @@
+# --- OS cruft ---
+.DS_Store
+Thumbs.db
+
+# --- Python bytecode & caches ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+.python-version  # pyenv
+
+# --- Build & packaging artifacts ---
+build/
+dist/
+downloads/
+.eggs/
+*.egg-info/
+*.egg
+MANIFEST
+wheels/
+share/python-wheels/
+
+# --- Installer logs ---
+pip-wheel-metadata/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Test & coverage ---
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.cache/
+.hypothesis/
+.nox/
+.tox/
+.benchmarks/
+
+# --- Type checkers / linters / tooling ---
+.mypy_cache/
+.pytype/
+.pyre/
+ruff_cache/
+
+# --- Editors & project files ---
+.idea/
+.vscode/
+*.code-workspace
+.spyderproject
+.spyproject
+.ropeproject
+
+# --- Jupyter (if you ever prototype) ---
+.ipynb_checkpoints/
+
+# --- Misc logs ---
+*.log
