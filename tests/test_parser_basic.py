@@ -1,6 +1,7 @@
 import pytest
 from rolla import __version__
-from rolla import errors, parser
+from rolla import errors
+from rolla import parser
 
 
 def test_version_string():
