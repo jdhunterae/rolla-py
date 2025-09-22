@@ -16,7 +16,13 @@ def test_parse_nds_minimal():
     assert expr.modifier == 0
 
 
-@pytest.mark.parametrize("bad", ["d20", "0d6", "1d1", "2d", "2x6", ""])
-def test_parse_rejects_bad_nds(bad):
+@pytest.mark.parametrize("bad", ["d20", "2d", "2x6", ""])
+def test_parse_rejects_bad_syntax(bad):
     with pytest.raises(errors.UsageError):
+        parser.parse(bad)
+
+
+@pytest.mark.parametrize("bad", ["0d6", "1d1"])
+def test_parse_rejects_semantic(bad):
+    with pytest.raises(errors.ValidationError):
         parser.parse(bad)
