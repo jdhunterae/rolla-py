@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rolla"
-version = "0.0.0a0"
+version = "0.3.2a0"
 description = "Console dice roller with strict TDD"
 readme = "README.md"
 requires-python = ">=3.9"
