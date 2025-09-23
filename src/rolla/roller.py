@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import random
 from typing import List
 from .parser import DiceExpr
+from typing import NamedTuple
 
 
 class RNG:
@@ -21,6 +22,11 @@ class RollResult:
     total: int
 
 
+class AdvResult(NamedTuple):
+    attempts: list[RollResult]
+    final: int
+
+
 def roll(expr: DiceExpr, rng: RNG) -> RollResult:
     rolls = [rng.randint(1, expr.sides) for _ in range(expr.count)]
     # choose top-K by value; stable: sort by value desc, index asc
@@ -31,3 +37,15 @@ def roll(expr: DiceExpr, rng: RNG) -> RollResult:
     dropped = [v for i, v in enumerate(rolls) if i not in kept_idx]
     total = sum(kept) + expr.modifier
     return RollResult(rolls=rolls, kept=kept, dropped=dropped, modifier=expr.modifier, total=total)
+
+
+def roll_with_advantage(expr: DiceExpr, rng: "RNG") -> AdvResult:
+    a1 = roll(expr, rng)
+    a2 = roll(expr, rng)
+    return AdvResult(attempts=[a1, a2], final=max(a1.total, a2.total))
+
+
+def roll_with_disadvantage(expr: DiceExpr, rng: "RNG") -> AdvResult:
+    a1 = roll(expr, rng)
+    a2 = roll(expr, rng)
+    return AdvResult(attempts=[a1, a2], final=min(a1.total, a2.total))
