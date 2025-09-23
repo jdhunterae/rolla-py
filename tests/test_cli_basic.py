@@ -16,7 +16,7 @@ def run_cli(*args):
 
 def test_cli_runs_and_prints_result(monkeypatch, capsys):
     from rolla.cli import main
-    monkeypatch.setattr("ROLLA_SEED", 42)  # we'll support env seed
+    monkeypatch.setenv("ROLLA_SEED", "42")  # we'll support env seed
     # emulate sys.argv
     monkeypatch.setenv("PYTHONWARNINGS", "ignore")
     import sys
