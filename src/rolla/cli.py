@@ -6,10 +6,38 @@ from .roller import roll, RNG, roll_with_advantage, roll_with_disadvantage
 from .errors import UsageError, ValidationError
 
 
+def _print_attempt(n: int, expr, rr):
+    if expr.keep == expr.count:
+        print(
+            f"Attempt {n} - Rolled {expr.count}d{expr.sides}: {', '.join(map(str, rr.rolls))}")
+    else:
+        kept_desc = ", ".join(map(str, sorted(rr.kept, reverse=True)))
+        if len(rr.dropped) == 1:
+            print(
+                f"Attempt {n} - Rolled {expr.count}d{expr.sides} (keeping {expr.keep}): {kept_desc}; lowest: {rr.dropped[0]}")
+        else:
+            print(
+                f"Attempt {n} - Rolled {expr.count}d{expr.sides} (keeping {expr.keep}): {kept_desc}; dropped: {', '.join(map(str, rr.dropped))}")
+
+    print(f"Attempt {n} - Result: {rr.total}")
+
+
 def _print_human(out, expr):
-    if hasattr(out, "attempts"):  # adv/disadv result
+    if hasattr(out, "attempts"):
+        a1, a2 = out.attempts
+        _print_attempt(1, expr, a1)
+        _print_attempt(2, expr, a2)
+        hi, lo = (max(a1.total, a2.total), min(a1.total, a2.total))
+        if out.final == hi:
+            print(
+                f"Advantage applied: kept higher of {a1.total} and {a2.total}")
+        else:
+            print(
+                f"Disadvantage applied: kept lower of {a1.total} and {a2.total}")
         print(f"Final: {out.final}")
         return
+
+    # (single attempt unchanged)
     if expr.keep == expr.count:
         print(
             f"Rolled {expr.count}d{expr.sides}: {', '.join(map(str, out.rolls))}")
