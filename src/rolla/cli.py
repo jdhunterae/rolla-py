@@ -1,8 +1,9 @@
 import os
 import sys
+import argparse
 from .parser import parse
 from .roller import roll, RNG, roll_with_advantage, roll_with_disadvantage
-from .errors import UsageError
+from .errors import UsageError, ValidationError
 
 
 def _print_human(out, expr):
@@ -24,41 +25,39 @@ def _print_human(out, expr):
     print(f"Result: {out.total}")
 
 
+def _parse_args(argv):
+    p = argparse.ArgumentParser(prog="rolla", add_help=True)
+    p.add_argument("-a", "--advantage", action="store_true")
+    p.add_argument("-d", "--disadvantage", action="store_true")
+    p.add_argument("--seed", type=int)
+    p.add_argument("expression")
+    return p.parse_args(argv)
+
+
 def main() -> int:
-    argv = sys.argv[1:]
-    if not argv or argv[0] in ("-h", "--help"):
-        print("usage: rolla [-a|-d] [--seed N] EXPRESSION")
-        return 0
-
-    # crude flag parse to keep diff small; argparse arrives next phase
-    adv = False
-    dis = False
-    args = []
-    for a in argv:
-        if a in ("-a", "--advantage"):
-            adv = True
-        elif a in ("-d", "--disadvantage"):
-            dis = True
-        else:
-            args.append(a)
-
     try:
-        if adv and dis:
+        ns = _parse_args(sys.argv[1:])
+        if ns.advantage and ns.disadvantage:
             raise UsageError("Cannot use advantage and disadvantage together")
-        expr = parse(args[-1])
-        seed_env = os.getenv("ROLLA_SEED")
-        rng = RNG(int(seed_env) if seed_env is not None else None)
-        if adv:
+
+        expr = parse(ns.expression)
+        rng = RNG(ns.seed)
+        if ns.advantage:
             out = roll_with_advantage(expr, rng)
-        elif dis:
+        elif ns.disadvantage:
             out = roll_with_disadvantage(expr, rng)
         else:
             out = roll(expr, rng)
-
         _print_human(out, expr)
         return 0
     except UsageError as e:
         print(f"Error: {e}", file=sys.stderr)
+        return 2
+    except ValidationError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 3
+    except SystemExit as e:
+        # argparse parse failure (e.g., missing expression). Keep process alive for tests
         return 2
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
