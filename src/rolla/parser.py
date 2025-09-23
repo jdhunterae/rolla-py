@@ -3,6 +3,8 @@ import re
 from .errors import UsageError, ValidationError
 
 _DICE_RE = re.compile(r"^(\d+)[d](\d+)(?:[kK](\d+))?(?:([+-])(\d+))?$")
+MAX_COUNT = 100
+MAX_SIDES = 100
 
 
 @dataclass(frozen=True)
@@ -18,7 +20,7 @@ def parse(text: str) -> DiceExpr:
 
     if not m:
         raise UsageError(
-            "Invalid expression: expected expected NdS[k#][+M|-M]")
+            "Invalid expression: expected NdS[k#][+M|-M]")
 
     count = int(m.group(1))
     sides = int(m.group(2))
@@ -33,10 +35,10 @@ def parse(text: str) -> DiceExpr:
         modifier = 0
 
     # Validations
-    if count < 1:
-        raise ValidationError("Invalid dice count: must be >= 1")
-    if sides < 2:
-        raise ValidationError("Invalid die sides: must be >= 2")
+    if count < 1 or count > MAX_COUNT:
+        raise ValidationError(f"Invalid dice count: must be 1...{MAX_COUNT}")
+    if sides < 2 or sides > MAX_SIDES:
+        raise ValidationError(f"Invalid die sides: must be 2...{MAX_SIDES}")
     if keep < 1 or keep > count:
         raise ValidationError("Invalid keep: must be 1..Count")
 

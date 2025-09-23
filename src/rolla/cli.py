@@ -1,9 +1,15 @@
-import os
 import sys
 import argparse
 from .parser import parse
 from .roller import roll, RNG, roll_with_advantage, roll_with_disadvantage
 from .errors import UsageError, ValidationError
+
+
+class _NoExitArgumentParser(argparse.ArgumentParser):
+    """Raise UsageError instead of exiting, so we control stderr + exit codes."""
+
+    def error(self, message):
+        raise UsageError(message)
 
 
 def _print_attempt(n: int, expr, rr):
@@ -54,7 +60,7 @@ def _print_human(out, expr):
 
 
 def _parse_args(argv):
-    p = argparse.ArgumentParser(prog="rolla", add_help=True)
+    p = _NoExitArgumentParser(prog="rolla", add_help=True)
     p.add_argument("-a", "--advantage", action="store_true")
     p.add_argument("-d", "--disadvantage", action="store_true")
     p.add_argument("--seed", type=int)
