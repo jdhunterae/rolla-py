@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import re
 from .errors import UsageError, ValidationError
 
-_DICE_RE = re.compile(r"^(\d+)[d](\d+)$")
+_DICE_RE = re.compile(r"^(\d+)[d](\d+)(?:[kK](\d+))?$")
 
 
 @dataclass(frozen=True)
@@ -15,12 +15,19 @@ class DiceExpr:
 
 def parse(text: str) -> DiceExpr:
     m = _DICE_RE.match(text or "")
+
     if not m:
-        raise UsageError("Invalid expression: expected NdS")
+        raise UsageError("Invalid expression: expected NdS[k#]")
+
     count = int(m.group(1))
     sides = int(m.group(2))
+    keep = int(m.group(3)) if m.group(3) else count
+
     if count < 1:
         raise ValidationError("Invalid dice count: must be >= 1")
     if sides < 2:
         raise ValidationError("Invalid die sides: must be >= 2")
-    return DiceExpr(count=count, sides=sides, keep=count, modifier=0)
+    if keep < 1 or keep > count:
+        raise ValidationError("Invalid keep: must be 1..Count")
+
+    return DiceExpr(count=count, sides=sides, keep=keep, modifier=0)
